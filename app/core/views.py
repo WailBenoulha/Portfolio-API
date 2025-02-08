@@ -4,10 +4,13 @@ from rest_framework import status
 from .serializers import ProjectSerializer,SkillSerializer
 from .models import Project,Skill
 from rest_framework.response import Response
-
+from rest_framework.generics import CreateAPIView,RetrieveUpdateDestroyAPIView,ListAPIView
+from .serializers import *
+from rest_framework.permissions import IsAuthenticated,AllowAny,IsAdminUser
 
 class ProjectView(APIView):
     serializer_class = ProjectSerializer
+    permission_classes = [AllowAny]
 
     def get(self,request):
         model = Project.objects.all()
@@ -44,6 +47,7 @@ class ProjectView(APIView):
 
 class SkillView(APIView):
     serializer_class = SkillSerializer
+    permission_classes = [AllowAny]
 
     def get(self,request):
         model = Skill.objects.all()
@@ -74,4 +78,25 @@ class SkillView(APIView):
             instance.delete()
             return Response({'message':'deleted'},status=status.HTTP_204_NO_CONTENT)
         except Project.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)        
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class ExperienceAdmin(CreateAPIView,RetrieveUpdateDestroyAPIView):
+    serializer_class = ExperienceSerializer
+    permission_classes = [IsAdminUser]
+    queryset = Experience.objects.all()
+
+class ExperienceView (ListAPIView):
+    serializer_class = ExperienceSerializer
+    permission_classes = [AllowAny]   
+    queryset = Experience.objects.all()
+
+class EducationAdmin(CreateAPIView,RetrieveUpdateDestroyAPIView):
+    serializer_class = EducationSerializer
+    permission_classes = [IsAdminUser]
+    queryset = Education.objects.all()    
+
+class EducationView(ListAPIView):
+    serializer_class = EducationSerializer
+    permission_classes = [AllowAny]
+    queryset = Education.objects.all()       
