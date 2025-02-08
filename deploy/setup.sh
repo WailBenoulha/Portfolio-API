@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -e  # Exit immediately if any command fails
 
 # TODO: Set to URL of git repo.
 PROJECT_GIT_URL='https://github.com/WailBenoulha/Portfolio-API.git'
@@ -19,22 +19,22 @@ git clone $PROJECT_GIT_URL $PROJECT_BASE_PATH
 mkdir -p $PROJECT_BASE_PATH/env
 python3 -m venv $PROJECT_BASE_PATH/env
 
-# Install python packages
+# Install Python packages
 $PROJECT_BASE_PATH/env/bin/pip install -r $PROJECT_BASE_PATH/requirements.txt
 $PROJECT_BASE_PATH/env/bin/pip install uwsgi
 
-# Run migrations and collectstatic
+# Run migrations and collect static files (Fixed path to manage.py)
 cd $PROJECT_BASE_PATH
-$PROJECT_BASE_PATH/env/bin/python manage.py migrate
-$PROJECT_BASE_PATH/env/bin/python manage.py collectstatic --noinput
+$PROJECT_BASE_PATH/env/bin/python $PROJECT_BASE_PATH/app/manage.py migrate
+$PROJECT_BASE_PATH/env/bin/python $PROJECT_BASE_PATH/app/manage.py collectstatic --noinput
 
-# Configure supervisor
+# Configure Supervisor
 cp $PROJECT_BASE_PATH/deploy/supervisor_profiles_api.conf /etc/supervisor/conf.d/profiles_api.conf
 supervisorctl reread
 supervisorctl update
 supervisorctl restart profiles_api
 
-# Configure nginx
+# Configure Nginx
 cp $PROJECT_BASE_PATH/deploy/nginx_profiles_api.conf /etc/nginx/sites-available/profiles_api.conf
 rm /etc/nginx/sites-enabled/default
 ln -s /etc/nginx/sites-available/profiles_api.conf /etc/nginx/sites-enabled/profiles_api.conf
